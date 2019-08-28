@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <style>
+      table {
+        background: black;
+        border-spacing: 0;
+        border: 1px solid;
+      }
+
+      td {
+        background: white;
+        height: 30px;
+        width: 30px;
+        text-align: center;
+        border: 1px solid;
+      }
+
+      [data-x="1"] [data-y="1"] {
+        background: red;
+      }
+    </style>
+    <table></table>
+    <button onClick="renderData(null)">Clear</button>
+    <button>Submit</button>
+    <script>
+      function renderData(data) {
+        const tds = document.querySelectorAll("td");
+        tds.forEach(td => {
+          const {
+            dataset: { x, y }
+          } = td;
+          td.innerText = data ? data[x - 1][y - 1] : null;
+
+          if (data && data[x - 1][y - 1]) {
+            const cell = cells.get(`${Number(x)},${Number(y)}`);
+            cell.currentValue = data[x - 1][y - 1];
+            cell.availableValues = [];
+          }
+        });
+      }
+
+      function getClass(i, j) {
+        return Math.floor(i / 3) * 3 + Math.floor(j / 3) + 1;
+      }
+
+      function updateDatas() {
+        for (let i = 1; i <= 9; i++) {
+          for (let j = 1; j <= 9; j++) {
+            const cell = cells.get(`${Number(i)},${Number(j)}`);
+            if (cell.currentValue) {
+              classes[getClass(i - 1, j - 1)].add(cell.currentValue);
+              rows[i].add(cell.currentValue);
+              columns[j].add(cell.currentValue);
+            }
+          }
+        }
+
+        console.log(classes, rows, columns);
+      }
+
+      const table = document.querySelector("table");
+      const clearButton = document.querySelector("#clear");
+      class Cell {
+        availableValues = new Set([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        currentValue = null;
+      }
+      const cells = new Map();
+      const classes = [];
+      const rows = [];
+      const columns = [];
+
+      const data = [
+        [null, null, null, null, null, 8, null, null, 7],
+        [null, 3, null, null, null, null, null, 4, 8],
+        [null, null, null, null, 5, 2, 3, null, 6],
+        [null, 5, 1, null, 8, 7, null, null, 3],
+        [null, 6, 8, null, 2, null, 1, 7, null],
+        [3, null, null, 4, 1, null, 2, 8, null],
+        [5, null, 3, 2, 6, null, null, null, null],
+        [1, 4, null, null, null, null, null, 3, null],
+        [8, null, null, 1, null, null, null, null, null]
+      ];
+
+      for (let i = 1; i <= 9; i++) {
+        classes[i] = new Set();
+        rows[i] = new Set();
+        columns[i] = new Set();
+      }
+
+      for (let i = 0; i < 9; i++) {
+        const tr = document.createElement("tr");
+        for (let j = 0; j < 9; j++) {
+          const td = document.createElement("td");
+          const cellClass = getClass(i, j);
+          td.setAttribute("contenteditable", "true");
+          td.setAttribute("data-cclass", cellClass);
+          td.setAttribute("data-x", `${i + 1}`);
+          td.setAttribute("data-y", `${j + 1}`);
+          cells.set(`${i + 1},${j + 1}`, new Cell());
+          if ([2, 4, 6, 8].includes(cellClass)) {
+            td.style.background = "skyblue";
+          }
+
+          tr.appendChild(td);
+        }
+        table.appendChild(tr);
+      }
+
+      renderData(data);
+      console.log(cells);
+      updateDatas();
+    </script>
+  </body>
+</html>
